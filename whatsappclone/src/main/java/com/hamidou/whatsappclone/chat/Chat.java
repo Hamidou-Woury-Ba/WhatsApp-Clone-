@@ -22,6 +22,12 @@ import static jakarta.persistence.GenerationType.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "chat")
+@NamedQuery(name = ChatConstants.FIND_CHAT_BY_SENDER_ID,
+        query = "SELECT DISTINCT c FROM Chat c WHERE c.sender.id = :senderId OR c.recipient.id = :senderId ORDER BY createdDate DESC"
+)
+@NamedQuery(name = ChatConstants.FIND_CHAT_BY_SENDER_ID_AND_RECEIVER,
+        query = "SELECT DISTINCT c FROM Chat c WHERE (c.sender.id = :senderId AND c.recipient.id = :recipientId) OR (c.sender.id = :recipientId AND c.recipient.id = :senderId) ORDER BY createdDate DESC"
+)
 public class Chat extends BaseAuditingEntity {
 
     @Id
@@ -33,8 +39,8 @@ public class Chat extends BaseAuditingEntity {
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "recepient_id")
-    private User recepient;
+    @JoinColumn(name = "recipient_id")
+    private User recipient;
 
     @OneToMany(mappedBy = "chat", fetch = FetchType.EAGER)
     @OrderBy("createdDate DESC")
@@ -42,10 +48,10 @@ public class Chat extends BaseAuditingEntity {
 
     @Transient
     public String getChatName(final String senderId){
-        if (recepient.getId().equals(senderId)){
+        if (recipient.getId().equals(senderId)){
             return sender.getFirstName() + " " + sender.getLastName();
         }
-        return recepient.getFirstName() + " " + recepient.getLastName();
+        return recipient.getFirstName() + " " + recipient.getLastName();
     }
 
     @Transient
