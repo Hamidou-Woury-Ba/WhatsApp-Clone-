@@ -15,10 +15,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
-@RequiredArgsConstructor
+@Component // Rend ce filtre accessible à Spring (sera injecté automatiquement)
+@RequiredArgsConstructor // Génère un constructeur avec les attributs "final"
 public class UserSynchronizerFilter extends OncePerRequestFilter {
 
+    // Service chargé de synchroniser l'utilisateur avec les données venant du token JWT
     private final UserSynchronizer userSynchronizer;
 
     @Override
@@ -27,12 +28,17 @@ public class UserSynchronizerFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        // Vérifie que l'utilisateur est bien authentifié (pas anonyme)
         if (!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
-            JwtAuthenticationToken token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication());
+            // Récupère le token JWT de l'utilisateur connecté
+            JwtAuthenticationToken token = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
+            // Lance la synchronisation avec l'IdP (par exemple Keycloak)
             userSynchronizer.synchronizeWithIdp(token.getToken());
         }
 
+        // Poursuit le traitement de la requête HTTP
         filterChain.doFilter(request, response);
     }
 }
+
