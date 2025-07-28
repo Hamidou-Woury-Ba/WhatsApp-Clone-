@@ -3,6 +3,10 @@ package com.hamidou.whatsappclone.message;
 import com.hamidou.whatsappclone.chat.Chat;
 import com.hamidou.whatsappclone.chat.ChatRepository;
 import com.hamidou.whatsappclone.file.FileService;
+import com.hamidou.whatsappclone.file.FileUtils;
+import com.hamidou.whatsappclone.notification.Notification;
+import com.hamidou.whatsappclone.notification.NotificationService;
+import com.hamidou.whatsappclone.notification.NotificationType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -20,6 +24,7 @@ public class MessageService {
     private final ChatRepository chatRepository;
     private final MessageMapper mapper;
     private final FileService fileService;
+    private final NotificationService notificationService;
 
     public void saveMessage(MessageRequest messageRequest) {
 
@@ -37,7 +42,17 @@ public class MessageService {
 
         messageRepository.save(message);
 
-        // to do notification
+        Notification notification = Notification.builder()
+                .content(messageRequest.getContent())
+                .senderId(messageRequest.getSenderId())
+                .receiverId(messageRequest.getReceiverId())
+                .chatId(chat.getId())
+                .chatName(chat.getChatName(message.getSenderId()))
+                .type(NotificationType.MESSAGE)
+                .messageType(messageRequest.getType())
+                .build();
+
+        notificationService.sendNotification(messageRequest.getReceiverId(),notification);
 
     }
 
@@ -53,11 +68,18 @@ public class MessageService {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
-//        final String recipientId = getRecipient(chat, authentication);
+        final String recipientId = getRecipient(chat, authentication);
 
         messageRepository.setMessagesToSeenByChatId(chatId, MessageState.SEEN);
 
-        // to do notification
+        Notification notification = Notification.builder()
+                .chatId(chat.getId())
+                .type(NotificationType.SEEN)
+                .receiverId(recipientId)
+                .senderId(getSenderId(chat, authentication))
+                .build();
+
+        notificationService.sendNotification(recipientId, notification);
 
     }
 
@@ -81,7 +103,16 @@ public class MessageService {
 
         messageRepository.save(message);
 
-        // to do notification
+        Notification notification = Notification.builder()
+                .chatId(chat.getId())
+                .type(NotificationType.IMAGE)
+                .senderId(senderId)
+                .receiverId(recipientId)
+                .messageType(MessageType.IMAGE)
+                .media(FileUtils.readFileFromLocation(filePath))
+                .build();
+
+        notificationService.sendNotification(recipientId, notification);
     }
 
     private String getSenderId(Chat chat, Authentication authentication) {
