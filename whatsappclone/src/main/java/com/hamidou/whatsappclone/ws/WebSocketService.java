@@ -19,16 +19,18 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import java.util.List;
 
 @Configuration
-@EnableWebSocketMessageBroker
+@EnableWebSocketMessageBroker //gestion des messages WebSocket
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 @RequiredArgsConstructor
 public class WebSocketService implements WebSocketMessageBrokerConfigurer {
+
+    // Configuration du broker WebSocket pour gérer les messages en temps réel
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // Active un broker simple embarqué avec le préfixe /user pour envoyer les messages aux utilisateurs
+        // (serveur → client ) : Active un broker simple embarqué avec le préfixe /user pour envoyer les messages aux utilisateurs
         registry.enableSimpleBroker("/user");
 
-        // Les messages envoyés depuis le client doivent commencer par /app pour être routés vers les méthodes contrôleurs (ex: @MessageMapping)
+        // (client → serveur ) : Les messages envoyés depuis le client doivent commencer par /app pour être routés vers les méthodes contrôleurs (ex: @MessageMapping)
         registry.setApplicationDestinationPrefixes("/app");
 
         // Permet de faire des envois spécifiques à un utilisateur (ex: /users/{username})
@@ -36,6 +38,7 @@ public class WebSocketService implements WebSocketMessageBrokerConfigurer {
     }
 
 
+    // Enregistre les points de terminaison STOMP pour que les clients puissent se connecter
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry

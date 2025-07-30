@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class NotificationService {
 
+    // Service pour envoyer des notifications WebSocket aux utilisateurs
     private final SimpMessagingTemplate messagingTemplate;
 
     public void sendNotification(String userId, Notification notification) {
