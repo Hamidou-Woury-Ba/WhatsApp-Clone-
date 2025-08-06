@@ -1,4 +1,4 @@
-import { Component, input, InputSignal } from '@angular/core';
+import {Component, input, InputSignal, output} from '@angular/core';
 import {ChatResponse, UserResponse} from '../../services/models';
 import {DatePipe} from '@angular/common';
 import {UserService} from '../../services/services/user.service';
@@ -16,6 +16,7 @@ export class ChatListComponent {
   chats: InputSignal<ChatResponse[]> = input<ChatResponse[]>([]);
   searchNewContact: boolean = false;
   contacts: Array<UserResponse> = [];
+  chatSelected = output<ChatResponse>()
 
   constructor(
     private userService: UserService
@@ -23,7 +24,6 @@ export class ChatListComponent {
   }
 
   searchContact() {
-    this.searchNewContact = true;
     this.userService.getAllUsers()
       .subscribe({
         next: (users) => {
@@ -34,7 +34,7 @@ export class ChatListComponent {
   }
 
   chatClicked(chat: ChatResponse) {
-
+    this.chatSelected.emit(chat);
   }
 
   wrapMessage(lastMessage: string | undefined): string {

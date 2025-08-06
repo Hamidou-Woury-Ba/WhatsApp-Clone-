@@ -11,8 +11,8 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
-import { findChatMessages } from '../fn/message/find-chat-messages';
-import { FindChatMessages$Params } from '../fn/message/find-chat-messages';
+import { getMessages } from '../fn/message/get-messages';
+import { GetMessages$Params } from '../fn/message/get-messages';
 import { MessageResponse } from '../models/message-response';
 import { saveMessage } from '../fn/message/save-message';
 import { SaveMessage$Params } from '../fn/message/save-message';
@@ -102,27 +102,27 @@ export class MessageService extends BaseService {
     );
   }
 
-  /** Path part for operation `findChatMessages()` */
-  static readonly FindChatMessagesPath = '/api/v1/messages/chat/{chat-id}';
+  /** Path part for operation `getMessages()` */
+  static readonly GetMessagesPath = '/api/v1/messages/chat/{chat-id}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `findChatMessages()` instead.
+   * To access only the response body, use `getMessages()` instead.
    *
    * This method doesn't expect any request body.
    */
-  findChatMessages$Response(params: FindChatMessages$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<MessageResponse>>> {
-    return findChatMessages(this.http, this.rootUrl, params, context);
+  getMessages$Response(params: GetMessages$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<MessageResponse>>> {
+    return getMessages(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `findChatMessages$Response()` instead.
+   * To access the full response (for headers, for example), `getMessages$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  findChatMessages(params: FindChatMessages$Params, context?: HttpContext): Observable<Array<MessageResponse>> {
-    return this.findChatMessages$Response(params, context).pipe(
+  getMessages(params: GetMessages$Params, context?: HttpContext): Observable<Array<MessageResponse>> {
+    return this.getMessages$Response(params, context).pipe(
       map((r: StrictHttpResponse<Array<MessageResponse>>): Array<MessageResponse> => r.body)
     );
   }

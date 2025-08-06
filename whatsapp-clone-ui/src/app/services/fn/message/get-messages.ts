@@ -10,12 +10,12 @@ import { RequestBuilder } from '../../request-builder';
 
 import { MessageResponse } from '../../models/message-response';
 
-export interface FindChatMessages$Params {
+export interface GetMessages$Params {
   'chat-id': string;
 }
 
-export function findChatMessages(http: HttpClient, rootUrl: string, params: FindChatMessages$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<MessageResponse>>> {
-  const rb = new RequestBuilder(rootUrl, findChatMessages.PATH, 'get');
+export function getMessages(http: HttpClient, rootUrl: string, params: GetMessages$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<MessageResponse>>> {
+  const rb = new RequestBuilder(rootUrl, getMessages.PATH, 'get');
   if (params) {
     rb.path('chat-id', params['chat-id'], {});
   }
@@ -30,4 +30,4 @@ export function findChatMessages(http: HttpClient, rootUrl: string, params: Find
   );
 }
 
-findChatMessages.PATH = '/api/v1/messages/chat/{chat-id}';
+getMessages.PATH = '/api/v1/messages/chat/{chat-id}';

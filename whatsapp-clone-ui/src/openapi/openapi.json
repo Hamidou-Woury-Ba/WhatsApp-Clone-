@@ -183,7 +183,7 @@
                 "tags": [
                     "Message"
                 ],
-                "operationId": "findChatMessages",
+                "operationId": "getMessages",
                 "parameters": [
                     {
                         "name": "chat-id",
@@ -362,8 +362,8 @@
                 "bearerFormat": "JWT",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://localhost:9090/realms/master/protocol/openid-connect/auth",
-                        "tokenUrl": "http://localhost:9090/realms/master/protocol/openid-connect/token",
+                        "authorizationUrl": "http://localhost:9090/realms/whatsapp-clone/protocol/openid-connect/auth",
+                        "tokenUrl": "http://localhost:9090/realms/whatsapp-clone/protocol/openid-connect/token",
                         "scopes": {}
                     }
                 }
