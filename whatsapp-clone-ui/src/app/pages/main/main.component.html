@@ -16,6 +16,7 @@
         <app-chat-list
           [chats]="chats"
           (chatSelected)="chatSelected($event)"
+          (newChatCreated)="onNewChatCreated($event)"
         ></app-chat-list>
       </div>
       @if (selectedChat.id) {

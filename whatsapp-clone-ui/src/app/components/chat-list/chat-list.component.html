@@ -37,8 +37,11 @@
             <small class="text-secondary">
               @if (chat.lastMessage === 'Attachment') {
                 <i class="fas fa-image"></i>
+              } @else if (chat.lastMessage && chat.lastMessage.trim()) {
+                {{ wrapMessage(chat.lastMessage) }}
+              } @else {
+                <span class="text-muted fst-italic">Nouveau chat</span>
               }
-              {{ wrapMessage(chat.lastMessage) }}
             </small>
           </div>
         </div>

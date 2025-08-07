@@ -19,11 +19,12 @@ export class ChatListComponent {
   searchNewContact: boolean = false;
   contacts: Array<UserResponse> = [];
   chatSelected = output<ChatResponse>()
+  newChatCreated = output<ChatResponse>();
 
   constructor(
     private userService: UserService,
     private chatService: ChatService,
-    private KeycloakService: KeycloakService
+    private keycloakService: KeycloakService
   ) {
   }
 
@@ -50,7 +51,7 @@ export class ChatListComponent {
 
   selectContact(contact: UserResponse) {
     this.chatService.createChat({
-      'sender-id': this.KeycloakService.userId as string,
+      'sender-id': this.keycloakService.userId as string,
       'receiver-id': contact.id as string
     }).subscribe({
       next: (res) => {
@@ -59,12 +60,11 @@ export class ChatListComponent {
           name: contact.firstName + ' ' + contact.lastName,
           recipientOnline: contact.online,
           lastMessage: contact.lastSeen,
-          senderId: this.KeycloakService.userId,
+          senderId: this.keycloakService.userId,
           receiverId: contact.id
         };
-        this.chats().unshift(chat);
+        this.newChatCreated.emit(chat);
         this.searchNewContact = false;
-        this.chatSelected.emit(chat);
       }
     })
   }

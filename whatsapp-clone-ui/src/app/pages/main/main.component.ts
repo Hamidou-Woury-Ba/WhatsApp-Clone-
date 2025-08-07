@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ChatListComponent } from '../../components/chat-list/chat-list.component';
-import {ChatResponse, MessageRequest, MessageResponse} from '../../services/models';
-import {ChatService, MessageService} from '../../services/services';
-import {KeycloakService} from '../../utils/keycloak/keycloak.service';
-import {DatePipe} from '@angular/common';
-import {PickerComponent} from '@ctrl/ngx-emoji-mart';
-import {EmojiData} from '@ctrl/ngx-emoji-mart/ngx-emoji';
-import {FormsModule} from '@angular/forms';
+import { ChatResponse, MessageRequest, MessageResponse } from '../../services/models';
+import { ChatService, MessageService } from '../../services/services';
+import { KeycloakService } from '../../utils/keycloak/keycloak.service';
+import { DatePipe } from '@angular/common';
+import { PickerComponent } from '@ctrl/ngx-emoji-mart';
+import { EmojiData } from '@ctrl/ngx-emoji-mart/ngx-emoji';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-main',
@@ -41,6 +41,17 @@ export class MainComponent implements OnInit {
       })
   }
 
+  onNewChatCreated(newChat: ChatResponse) {
+    // Vérifier si le chat n'existe pas déjà
+    const existingChat = this.chats.find(chat => chat.id === newChat.id);
+    if (!existingChat) {
+      // Ajouter le nouveau chat en début de liste
+      this.chats.unshift(newChat);
+    }
+    // Sélectionner automatiquement le nouveau chat
+    this.chatSelected(newChat);
+  }
+
   logout() {
     this.keycloakService.logout();
   }
@@ -58,7 +69,7 @@ export class MainComponent implements OnInit {
 
   private getAllChatMessages(chatId: string) {
     this.messageService.getMessages({
-      'chat-id' : chatId
+      'chat-id': chatId
     }).subscribe({
       next: (messages) => {
         this.chatMessages = messages;
@@ -68,13 +79,13 @@ export class MainComponent implements OnInit {
 
   private setMessagesToSeen() {
     this.messageService.setMessageToSeen({
-      'chat-id' : this.selectedChat.id as string
+      'chat-id': this.selectedChat.id as string
     }).subscribe({
-      next: () => {}
+      next: () => { }
     })
   }
 
-  isSelfMessage(message: MessageResponse){
+  isSelfMessage(message: MessageResponse) {
     return message.senderId === this.keycloakService.userId;
   }
 
@@ -98,7 +109,7 @@ export class MainComponent implements OnInit {
   }
 
   sendMessage() {
-    if(this.messageContent){
+    if (this.messageContent) {
       const messageRequest: MessageRequest = {
         chatId: this.selectedChat.id,
         senderId: this.getSenderId(),
@@ -111,15 +122,16 @@ export class MainComponent implements OnInit {
       }).subscribe({
         next: () => {
           const messageResponse: MessageResponse = {
-           senderId: this.getSenderId(),
-           receiverId: this.getReceiverId(),
-           content: this.messageContent,
-           type: 'TEXT',
-           state: 'SENT',
-           createdAt: new Date().toString() 
+            senderId: this.getSenderId(),
+            receiverId: this.getReceiverId(),
+            content: this.messageContent,
+            type: 'TEXT',
+            state: 'SENT',
+            createdAt: new Date().toString()
           };
           this.selectedChat.lastMessage = this.messageContent;
           this.chatMessages.push(messageResponse);
+          this.moveToTop(this.selectedChat);
           this.messageContent = '';
           this.showEmojis = false;
         }
@@ -127,15 +139,23 @@ export class MainComponent implements OnInit {
     }
   }
 
+  private moveToTop(chat: ChatResponse) {
+    const index = this.chats.findIndex(c => c.id === chat.id);
+    if (index > 0) {
+      this.chats.splice(index, 1);
+      this.chats.unshift(chat);
+    }
+  }
+
   private getSenderId(): string {
-    if(this.selectedChat.senderId === this.keycloakService.userId){
+    if (this.selectedChat.senderId === this.keycloakService.userId) {
       return this.selectedChat.senderId as string;
     }
     return this.selectedChat.receiverId as string;
   }
 
   private getReceiverId(): string {
-    if(this.selectedChat.senderId === this.keycloakService.userId){
+    if (this.selectedChat.senderId === this.keycloakService.userId) {
       return this.selectedChat.receiverId as string;
     }
     return this.selectedChat.senderId as string;
